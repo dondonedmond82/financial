@@ -32,7 +32,7 @@ df = pd.read_csv("./data/output.csv")
 
 df['active_fy'] = df['active_fy'].astype("str")
 
-df_bar = df.head(20)
+df_bar = df.head(30)
 
 #########################################################################################################################################################
 
@@ -79,11 +79,12 @@ def create_active_fy_scatter(amount_value):
     )
 
 # --- Update your plotting function ---
-def create_active_fy_bar():
+@pn.depends(amount_value=select_amount_value)
+def create_active_fy_bar(amount_value):
     return (
         df_bar.hvplot.barh(
             x="abbreviation",
-            y="percentage_of_total_budget_authority",  # now dynamic
+            y=amount_value,  # now dynamic
             width=x_bar,
             height=y_bar,
             title=f"% Total Budget Authority by Abbreviation"
