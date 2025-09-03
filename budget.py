@@ -39,46 +39,46 @@ dose_1.on_click(lambda event: show_page("Page1"))
 
 #########################################################################################################################################################
 
-unique_active_fy =  list(df['active_fy'].unique())
-select_active_fy = pn.widgets.Select(name="Active Fy", options=unique_active_fy)
+unique_active_fy =  list(df['abbreviation'].unique())
+select_active_fy = pn.widgets.Select(name="Abbreviation", options=unique_active_fy)
 
 
 # --- Add a dropdown for Y-axis selection ---
 select_amount_value = pn.widgets.Select(
     name='Type of Amount',
-    options=['outlay_amount','obligated_amount','budget_authority_amount'],  
+    options=['outlay_amount','obligated_amount'],  
     value='outlay_amount'
 )
-
-#########################################################################################################################################################
-
-# --- Update your plotting function ---
-@pn.depends(symbol_active_fy=select_active_fy,
-            amount_value=select_amount_value)
-def create_active_fy_bar(symbol_active_fy, amount_value):
-    return (
-        df[df['active_fy'] == symbol_active_fy]
-        .hvplot.bar(
-            x="agency_name",
-            y=select_amount_value,  # now dynamic
-            width=x_bar,
-            height=y_bar,
-            title=f"{amount_value.capitalize()} par {select_amount_value.value}"
-        )
-    )
 
 #########################################################################################################################################################
 
 x = 900
 y = 420
 
-x_bar = 490
-y_bar = 195
+x_bar = 960
+y_bar = 400
 
 
 def details():
     return df.hvplot.table(width=x, height=y)
 
+
+# --- Update your plotting function ---
+@pn.depends(symbol_active_fy=select_active_fy,
+            amount_value=select_amount_value)
+def create_active_fy_bar(symbol_active_fy, amount_value):
+    return (
+        df[df['abbreviation'] == symbol_active_fy]
+        .hvplot.bar(
+            x="agency_slug",
+            y=select_amount_value,  # now dynamic
+            width=x_bar,
+            height=y_bar,
+            title=f"{select_active_fy.value.capitalize()} par {select_amount_value.value}"
+        )
+    )
+
+#########################################################################################################################################################
 
 def show_page(page_key):
     main_area.clear()
@@ -91,10 +91,25 @@ def CreatePage1():
 
             pn.Row(
                 pn.Column(
-                    pn.Row(details),
+                    pn.Row(select_active_fy),
+                ),
+
+                pn.Column(
+                    pn.Row(select_amount_value),
+                ),
+            ),
+
+            pn.Row(
+                pn.Column(
                     pn.Row(create_active_fy_bar),
                 ),
             ),
+
+            # pn.Row(
+            #     pn.Column(
+            #         pn.Row(details),
+            #     ),
+            # ),
         )
 
 #########################################################################################################################################################
