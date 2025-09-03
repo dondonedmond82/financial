@@ -57,8 +57,8 @@ select_amount_value = pn.widgets.Select(
 x = 900
 y = 420
 
-x_bar = 450
-y_bar = 380
+x_bar = 480
+y_bar = 420
 
 
 def details():
@@ -70,8 +70,8 @@ def details():
 def create_active_fy_scatter(amount_value):
     return (
         df.hvplot.scatter(
-            x="percentage_of_total_budget_authority",
-            y=amount_value,  # now dynamic
+            x=amount_value,  # now dynamic
+            y="percentage_of_total_budget_authority",
             width=x_bar,
             height=y_bar,
             title=f"Amount value by % of Total Budget Authority"
