@@ -32,6 +32,8 @@ df = pd.read_csv("./data/output.csv")
 
 df['active_fy'] = df['active_fy'].astype("str")
 
+df_bar = df.head(20)
+
 #########################################################################################################################################################
 
 dose_1 = pn.widgets.Button(name="Budget & Financial", button_type="warning", icon="clipboard-data", styles={"width": "100%"})
@@ -65,10 +67,23 @@ def details():
 
 # --- Update your plotting function ---
 @pn.depends(amount_value=select_amount_value)
-def create_active_fy_bar(amount_value):
+def create_active_fy_scatter(amount_value):
     return (
         df.hvplot.scatter(
             x="percentage_of_total_budget_authority",
+            y=amount_value,  # now dynamic
+            width=x_bar,
+            height=y_bar,
+            title=f"Amount value par % of Total Budget Authority"
+        )
+    )
+
+# --- Update your plotting function ---
+@pn.depends(amount_value=select_amount_value)
+def create_active_fy_bar(amount_value):
+    return (
+        df_bar.hvplot.barh(
+            x="abbreviation",
             y=amount_value,  # now dynamic
             width=x_bar,
             height=y_bar,
@@ -99,7 +114,7 @@ def CreatePage1():
                 ),
 
                 pn.Column(
-                    pn.Row(create_active_fy_bar),
+                    pn.Row(create_active_fy_scatter),
                 ),
             ),
         )
