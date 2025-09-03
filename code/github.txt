@@ -1,3 +1,65 @@
+🚀 Full Git Repository Setup Code
+1. Create or move into your project folder
+# If you already have a project folder, cd into it
+cd path/to/your/project
+
+# If you don’t have one yet, create it
+mkdir my-project
+cd my-project
+
+2. Initialize Git
+# Initialize git inside the folder
+git init
+
+3. Add project files & commit
+# Add all files
 git add .
-git commit -m "Some change"
+
+# Commit with a message
+git commit -m "Initial commit"
+
+4. Create a repository on GitHub
+
+Go to https://github.com/new
+
+Name it (example: my-project)
+
+Leave options as default, then click Create repository.
+
+GitHub will then give you a repository URL, e.g.:
+
+HTTPS → https://github.com/USERNAME/my-project.git
+
+SSH → git@github.com:USERNAME/my-project.git
+
+5. Link local repo to GitHub
+# Replace USERNAME with your GitHub username
+git remote add origin https://github.com/USERNAME/my-project.git
+
+6. Set branch name & push code
+# Rename branch to main (if needed)
+git branch -M main
+
+# Push everything to GitHub
+git push -u origin main
+
+✅ Daily Workflow After Setup
+
+Whenever you make changes:
+
+# See changes
+git status
+
+# Stage files
+git add .
+
+# Commit with a message
+git commit -m "Updated feature X"
+
+# Push to GitHub
 git push
+
+
+⚡ That’s the complete flow — from local project → GitHub repository → daily updates.
+
+Do you want me to also give you a one-shot script (all commands together) so you can just run it once for a new project?
