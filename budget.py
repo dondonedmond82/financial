@@ -39,6 +39,36 @@ dose_1.on_click(lambda event: show_page("Page1"))
 
 #########################################################################################################################################################
 
+unique_active_fy =  list(df['active_fy'].unique())
+select_active_fy = pn.widgets.Select(name="Active Fy", options=unique_active_fy)
+
+
+# --- Add a dropdown for Y-axis selection ---
+select_amount_value = pn.widgets.Select(
+    name='Type of Amount',
+    options=['outlay_amount','obligated_amount','budget_authority_amount'],  
+    value='outlay_amount'
+)
+
+#########################################################################################################################################################
+
+# --- Update your plotting function ---
+@pn.depends(symbol_active_fy=select_active_fy,
+            amount_value=select_amount_value)
+def create_active_fy_bar(symbol_active_fy, amount_value):
+    return (
+        df[df['active_fy'] == symbol_active_fy]
+        .hvplot.bar(
+            x="agency_name",
+            y=select_amount_value,  # now dynamic
+            width=x_bar,
+            height=y_bar,
+            title=f"{amount_value.capitalize()} par {select_amount_value.value}"
+        )
+    )
+
+#########################################################################################################################################################
+
 x = 900
 y = 420
 
@@ -62,7 +92,7 @@ def CreatePage1():
             pn.Row(
                 pn.Column(
                     pn.Row(details),
-
+                    pn.Row(create_active_fy_bar),
                 ),
             ),
         )
