@@ -57,8 +57,8 @@ select_amount_value = pn.widgets.Select(
 x = 900
 y = 420
 
-x_bar = 480
-y_bar = 400
+x_bar = 450
+y_bar = 380
 
 
 def details():
@@ -74,7 +74,7 @@ def create_active_fy_scatter(amount_value):
             y=amount_value,  # now dynamic
             width=x_bar,
             height=y_bar,
-            title=f"Amount value par % of Total Budget Authority"
+            title=f"Amount value by % of Total Budget Authority"
         )
     )
 
@@ -86,7 +86,7 @@ def create_active_fy_bar():
             y="percentage_of_total_budget_authority",  # now dynamic
             width=x_bar,
             height=y_bar,
-            title=f"% of Total Budget Authority par Abbreviation value"
+            title=f"% Total Budget Authority by Abbreviation"
         )
     )
 
