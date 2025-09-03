@@ -48,7 +48,7 @@ select_abbreviation = pn.widgets.Select(name="Abbreviation", options=unique_abbr
 # --- Add a dropdown for Y-axis selection ---
 select_amount_value = pn.widgets.Select(
     name='Amount Value',
-    options=['outlay_amount', 'obligated_amount', 'budget_authority_amount', 'current_total_budget_authority_amount'],  
+    options=['outlay_amount', 'obligated_amount', 'budget_authority_amount'],  
     value='outlay_amount'
 )
 
