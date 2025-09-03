@@ -63,3 +63,10 @@ git push
 ⚡ That’s the complete flow — from local project → GitHub repository → daily updates.
 
 Do you want me to also give you a one-shot script (all commands together) so you can just run it once for a new project?
+
+
+
+
+git add .
+git commit -m "Some change"
+git push
