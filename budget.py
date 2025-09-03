@@ -39,14 +39,14 @@ dose_1.on_click(lambda event: show_page("Page1"))
 
 #########################################################################################################################################################
 
-unique_active_fy =  list(df['abbreviation'].unique())
-select_active_fy = pn.widgets.Select(name="Abbreviation", options=unique_active_fy)
+unique_abbreviation =  list(df['abbreviation'].unique())
+select_abbreviation = pn.widgets.Select(name="Abbreviation", options=unique_abbreviation)
 
 
 # --- Add a dropdown for Y-axis selection ---
 select_amount_value = pn.widgets.Select(
-    name='Type of Amount',
-    options=['outlay_amount','obligated_amount'],  
+    name='Amount Value',
+    options=['outlay_amount', 'obligated_amount', 'budget_authority_amount', 'current_total_budget_authority_amount'],  
     value='outlay_amount'
 )
 
@@ -55,7 +55,7 @@ select_amount_value = pn.widgets.Select(
 x = 900
 y = 420
 
-x_bar = 960
+x_bar = 480
 y_bar = 400
 
 
@@ -64,17 +64,15 @@ def details():
 
 
 # --- Update your plotting function ---
-@pn.depends(symbol_active_fy=select_active_fy,
-            amount_value=select_amount_value)
-def create_active_fy_bar(symbol_active_fy, amount_value):
+@pn.depends(amount_value=select_amount_value)
+def create_active_fy_bar(amount_value):
     return (
-        df[df['abbreviation'] == symbol_active_fy]
-        .hvplot.bar(
-            x="agency_slug",
-            y=select_amount_value,  # now dynamic
+        df.hvplot.scatter(
+            x="percentage_of_total_budget_authority",
+            y=amount_value,  # now dynamic
             width=x_bar,
             height=y_bar,
-            title=f"{select_active_fy.value.capitalize()} par {select_amount_value.value}"
+            title=f"Amount value par Abbreviation value"
         )
     )
 
@@ -91,10 +89,6 @@ def CreatePage1():
 
             pn.Row(
                 pn.Column(
-                    pn.Row(select_active_fy),
-                ),
-
-                pn.Column(
                     pn.Row(select_amount_value),
                 ),
             ),
@@ -103,13 +97,11 @@ def CreatePage1():
                 pn.Column(
                     pn.Row(create_active_fy_bar),
                 ),
-            ),
 
-            # pn.Row(
-            #     pn.Column(
-            #         pn.Row(details),
-            #     ),
-            # ),
+                pn.Column(
+                    pn.Row(create_active_fy_bar),
+                ),
+            ),
         )
 
 #########################################################################################################################################################
