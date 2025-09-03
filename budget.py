@@ -39,6 +39,9 @@ df_bar = df.head(30)
 dose_1 = pn.widgets.Button(name="Budget & Financial", button_type="warning", icon="clipboard-data", styles={"width": "100%"})
 dose_1.on_click(lambda event: show_page("Page1"))
 
+dose_2 = pn.widgets.Button(name="Details Budget - Fin", button_type="warning", icon="clipboard-data", styles={"width": "100%"})
+dose_2.on_click(lambda event: show_page("Page2"))
+
 #########################################################################################################################################################
 
 unique_abbreviation =  list(df['abbreviation'].unique())
@@ -119,17 +122,28 @@ def CreatePage1():
             ),
         )
 
+def CreatePage2():
+    return pn.Column(
+
+            pn.Row(
+                pn.Column(
+                    pn.Row(details),
+                ),
+            ),
+        )
+
 #########################################################################################################################################################
 
 mapping = { 
-    "Page1": CreatePage1(),  
+    "Page1": CreatePage1(), 
+    "Page2": CreatePage2(),  
 }
 
 logout   =  pn.widgets.Button(name="Déconnexion", button_type="warning", icon="clipboard-data", styles={"width": "100%"})
 logout.js_on_click(code="""window.location.href = './logout'""")
 
-sidebar = pn.Column(pn.pane.Markdown("## Menu"), dose_1, logout, styles={"width": "100%", "padding": "15px"})
-main_area = pn.Column(mapping['Page1'], styles={"width":"100%"})
+sidebar = pn.Column(pn.pane.Markdown("## Menu"), dose_1, dose_2, logout, styles={"width": "100%", "padding": "15px"})
+main_area = pn.Column(mapping['Page2'], styles={"width":"100%"})
 
 
 template = pn.template.BootstrapTemplate(
