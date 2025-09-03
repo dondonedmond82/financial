@@ -79,15 +79,14 @@ def create_active_fy_scatter(amount_value):
     )
 
 # --- Update your plotting function ---
-@pn.depends(amount_value=select_amount_value)
-def create_active_fy_bar(amount_value):
+def create_active_fy_bar():
     return (
         df_bar.hvplot.barh(
             x="abbreviation",
-            y=amount_value,  # now dynamic
+            y="percentage_of_total_budget_authority",  # now dynamic
             width=x_bar,
             height=y_bar,
-            title=f"Amount value par Abbreviation value"
+            title=f"% of Total Budget Authority par Abbreviation value"
         )
     )
 
@@ -110,12 +109,12 @@ def CreatePage1():
 
             pn.Row(
                 pn.Column(
-                    pn.Row(create_active_fy_bar),
+                    pn.Row(create_active_fy_scatter),
                 ),
 
                 pn.Column(
-                    pn.Row(create_active_fy_scatter),
-                ),
+                    pn.Row(create_active_fy_bar),
+                ),  
             ),
         )
 
