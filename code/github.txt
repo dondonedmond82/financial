@@ -28,13 +28,13 @@ Leave options as default, then click Create repository.
 
 GitHub will then give you a repository URL, e.g.:
 
-HTTPS → https://github.com/USERNAME/my-project.git
+HTTPS → https://github.com/dondonedmond82/asylum_seekers.git
 
-SSH → git@github.com:USERNAME/my-project.git
+SSH → git@github.com:dondonedmond82/asylum_seekers.git
 
 5. Link local repo to GitHub
 # Replace USERNAME with your GitHub username
-git remote add origin https://github.com/USERNAME/my-project.git
+git remote add origin  https://github.com/dondonedmond82/asylum_seekers.git
 
 6. Set branch name & push code
 # Rename branch to main (if needed)

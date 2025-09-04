@@ -1,161 +1,121 @@
 import warnings
-
+import os
+import pandas as pd
 import panel as pn
 import hvplot.pandas
-import json
-import datetime as dt
-import os
-
-from bokeh.io import curdoc
-from bokeh.models import ColumnDataSource, CustomJS
-from bokeh.models.widgets import DataTable, NumberFormatter, TableColumn, Button
-from bokeh.layouts import column,row
-
-import pandas as pd
-import numpy as np
-
-import xlsxwriter
-
-from bokeh.io import curdoc
-from bokeh.layouts import column
-from bokeh.models import Button, CustomJS
-import pandas as pd
-import io
-import base64
 
 warnings.filterwarnings("ignore")
-pn.extension()
+pn.extension('tabulator', 'echarts')
 
-#########################################################################################################################################################
+# --------------------------------------------------
+# Load Data
+# --------------------------------------------------
+FILE_PATH = "./data/output.csv"
+df = pd.read_csv(FILE_PATH)
+df['active_fy'] = df['active_fy'].astype(str)
 
-df = pd.read_csv("./data/output.csv")
-
-df['active_fy'] = df['active_fy'].astype("str")
-
-df_bar = df.head(30)
-
-#########################################################################################################################################################
-
-dose_1 = pn.widgets.Button(name="Budget & Financial", button_type="warning", icon="clipboard-data", styles={"width": "100%"})
-dose_1.on_click(lambda event: show_page("Page1"))
-
-dose_2 = pn.widgets.Button(name="Details Budget - Fin", button_type="warning", icon="clipboard-data", styles={"width": "100%"})
-dose_2.on_click(lambda event: show_page("Page2"))
-
-#########################################################################################################################################################
-
-unique_abbreviation =  list(df['abbreviation'].unique())
-select_abbreviation = pn.widgets.Select(name="Abbreviation", options=unique_abbreviation)
-
-
-# --- Add a dropdown for Y-axis selection ---
+# --------------------------------------------------
+# Widgets (Filters)
+# --------------------------------------------------
 select_amount_value = pn.widgets.Select(
-    name='Amount Value',
-    options=['outlay_amount', 'obligated_amount', 'budget_authority_amount'],  
-    value='outlay_amount'
+    name="Amount Value",
+    options=["outlay_amount", "obligated_amount", "budget_authority_amount"],
+    value="outlay_amount"
 )
 
-#########################################################################################################################################################
+select_abbreviation = pn.widgets.Select(
+    name="Abbreviation",
+    options=["All"] + sorted(df["abbreviation"].unique())
+)
 
-x = 900
-y = 420
+# --------------------------------------------------
+# KPIs
+# --------------------------------------------------
+def kpi_cards():
+    total_outlay = df["outlay_amount"].sum()
+    total_obligated = df["obligated_amount"].sum()
+    total_budget_auth = df["budget_authority_amount"].sum()
 
-x_bar = 480
-y_bar = 420
+    utilization = (total_obligated / total_budget_auth * 100) if total_budget_auth else 0
 
-
-def details():
-    return df.hvplot.table(width=x, height=y)
-
-
-# --- Update your plotting function ---
-@pn.depends(amount_value=select_amount_value)
-def create_active_fy_scatter(amount_value):
-    return (
-        df.hvplot.scatter(
-            x=amount_value,  # now dynamic
-            y="percentage_of_total_budget_authority",
-            width=x_bar,
-            height=y_bar,
-            title=f"Amount value by % of Total Budget Authority"
-        )
+    return pn.Row(
+        pn.indicators.Number(name="Total Outlay", value=total_outlay, format="{value:,.0f}"),
+        pn.indicators.Number(name="Total Obligated", value=total_obligated, format="{value:,.0f}"),
+        pn.indicators.Number(name="Budget Authority", value=total_budget_auth, format="{value:,.0f}"),
+        pn.indicators.Number(name="Utilization (%)", value=utilization, format="{value:.1f}%"),
     )
 
-# --- Update your plotting function ---
-@pn.depends(amount_value=select_amount_value)
-def create_active_fy_bar(amount_value):
-    return (
-        df_bar.hvplot.barh(
-            x="abbreviation",
-            y=amount_value,  # now dynamic
-            width=x_bar,
-            height=y_bar,
-            title=f"% Total Budget Authority by Abbreviation"
-        )
+# --------------------------------------------------
+# Filtered Data
+# --------------------------------------------------
+def get_filtered_data():
+    data = df.copy()
+    if select_abbreviation.value != "All":
+        data = data[data["abbreviation"] == select_abbreviation.value]
+    return data
+
+# --------------------------------------------------
+# Plots
+# --------------------------------------------------
+@pn.depends(select_amount_value, select_abbreviation)
+def scatter_plot(amount_value, abbreviation):
+    data = get_filtered_data()
+    return data.hvplot.scatter(
+        x=amount_value, 
+        y="percentage_of_total_budget_authority",
+        title=f"{amount_value} vs % of Budget Authority",
+        width=500, height=400
     )
 
-#########################################################################################################################################################
+@pn.depends(select_amount_value, select_abbreviation)
+def bar_plot(amount_value, abbreviation):
+    top = df.groupby("abbreviation")[[amount_value]].sum().sort_values(amount_value, ascending=False).head(10)
+    return top.hvplot.barh(
+        y=amount_value,
+        title=f"Top 10 Agencies by {amount_value}",
+        width=500, height=400
+    )
 
-def show_page(page_key):
-    main_area.clear()
-    main_area.append(mapping[page_key])
+def table_view():
+    return df.head(50).hvplot.table(width=900, height=400)
 
-#########################################################################################################################################################
+# --------------------------------------------------
+# Export
+# --------------------------------------------------
+def exporting(event=None):
+    filename = "BudgetData_filtered.xlsx"
+    get_filtered_data().to_excel(filename, index=False)
+    os.system(filename)
 
-def CreatePage1():
-    return pn.Column(
+export_button = pn.widgets.Button(name="Export Data", button_type="primary")
+export_button.on_click(exporting)
 
-            pn.Row(
-                pn.Column(
-                    pn.Row(select_amount_value),
-                ),
-            ),
+# --------------------------------------------------
+# Tabs
+# --------------------------------------------------
+summary_tab = pn.Column(
+    "## 📊 Budget Summary",
+    # kpi_cards,
+    pn.Row(scatter_plot, bar_plot)
+)
 
-            pn.Row(
-                pn.Column(
-                    pn.Row(create_active_fy_scatter),
-                ),
+details_tab = pn.Column(
+    "## 📋 Data Preview",
+    table_view,
+    export_button
+)
 
-                pn.Column(
-                    pn.Row(create_active_fy_bar),
-                ),  
-            ),
-        )
-
-def CreatePage2():
-    return pn.Column(
-
-            pn.Row(
-                pn.Column(
-                    pn.Row(details),
-                ),
-            ),
-        )
-
-#########################################################################################################################################################
-
-mapping = { 
-    "Page1": CreatePage1(), 
-    "Page2": CreatePage2(),  
-}
-
-logout   =  pn.widgets.Button(name="Déconnexion", button_type="warning", icon="clipboard-data", styles={"width": "100%"})
-logout.js_on_click(code="""window.location.href = './logout'""")
-
-sidebar = pn.Column(pn.pane.Markdown("## Menu"), dose_1, dose_2, logout, styles={"width": "100%", "padding": "15px"})
-main_area = pn.Column(mapping['Page2'], styles={"width":"100%"})
-
-
-template = pn.template.BootstrapTemplate(
-    title=f"""Bienvenue {pn.state.user}""",
-    sidebar=[sidebar],
-    main=[main_area],
-    # footer=[sidebar],
+# --------------------------------------------------
+# Template
+# --------------------------------------------------
+template = pn.template.FastListTemplate(
+    title="Budget & Financial Dashboard",
+    sidebar=[pn.pane.Markdown("## Filters"), select_amount_value, select_abbreviation, export_button],
+    main=[pn.Tabs(("Summary", summary_tab), ("Details", details_tab))],
     header_background="#f5b907",
-    # accent_base_color='orange',
-    site="Budget and Financial Forecast",  logo="logo.png",
-    sidebar_width=250,
-    busy_indicator=None,
+    accent_base_color="#f5b907",
+    site="Budget and Financial Forecast",
+    logo="logo.png",
 )
 
 template.servable()
